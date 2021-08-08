@@ -21,7 +21,7 @@ def getSSE(data,kMax):
   return SSE
 
 def app():
-  st.header('Agrupamiento particional')
+  st.header('Agrupamiento particional por k-medias 🧮')
   st.write(
     """
     En esta sección se aplica agrupamiento particional mediante el algoritmo

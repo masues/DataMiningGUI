@@ -2,7 +2,6 @@
 Module Exploratory Data Analysis
 """
 import streamlit as st
-import pandas as pd
 import plotly.express as px
 import numpy as np
 
@@ -32,6 +31,10 @@ def getPossibleClasses(data,numClasses):
     if data[col].nunique() <= numClasses:
       possibleCols.append(col)
   return possibleCols
+
+@st.cache
+def getMeanValues(data,classVar):
+  return data.groupby(classVar).agg(['mean'])
 
 def app():
   st.header('Análisis exploratorio de datos 🔎')
@@ -95,10 +98,10 @@ def app():
     possibleCols = getPossibleClasses(data,numClasses)
     col4.write(possibleCols)
     if possibleCols != None:
-      st.write('Valores promedio de la variable clase')
-      dataClass = st.selectbox(label='Selecciona a la variable clase',
+      st.write('Valores promedio con respecto a la variable clase')
+      classVar = st.selectbox(label='Selecciona a la variable clase',
         options=possibleCols,key='varClass')
-      st.write(data.groupby(dataClass).agg(['mean']))
+      st.write(getMeanValues(data,classVar))
   
   # Step 4. Relatioship between pair of variables detection
   st.subheader('Identificación de relaciones entre pares de variables')
