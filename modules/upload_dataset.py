@@ -29,4 +29,4 @@ def app():
       st.write(st.session_state.data)
     except Exception as e:
       st.error('Error al tratar de cargar el conjunto de datos.'
-        ' Revisa el archivo que subiste,')
+        ' Revisa el archivo que subiste.')

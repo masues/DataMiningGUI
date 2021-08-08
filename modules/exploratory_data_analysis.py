@@ -41,7 +41,7 @@ def app():
     st.warning('Primero carga un conjunto de datos.')
     st.stop()
   else:
-    data = st.session_state.data
+    data = dataReduced = st.session_state.data
   
   # Print the data uploaded in upload_dataset module
   st.subheader('Datos')
@@ -117,11 +117,14 @@ def app():
   if not variables:
     st.error("Por favor, selecciona al menos una variable.")
   else:
-    # Save the dataReduced as a session variable
-    st.session_state.dataReduced = data[variables]
+    dataReduced = data[variables]
     st.write('El conjunto de datos reducido es')
-    st.write(st.session_state.dataReduced)
+    st.write(dataReduced)
     st.markdown('El conjunto de datos reducido contiene **'+
-    str(st.session_state.dataReduced.shape[0])+
-    '** registros y **'+str(st.session_state.dataReduced.shape[1])+
+    str(dataReduced.shape[0])+
+    '** registros y **'+str(dataReduced.shape[1])+
     '** columnas.')
+  if st.button('Guardar conjunto de datos reducido'):
+    # Save the dataReduced as a session variable
+    st.session_state.dataReduced = dataReduced
+    st.success('Conjunto de datos guardado')

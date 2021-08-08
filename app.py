@@ -6,6 +6,7 @@ import streamlit as st
 # Custom imports
 from multipage import MultiPage
 from modules import upload_dataset, exploratory_data_analysis
+from modules import principal_component_analysis
 
 # Create an instance of the app 
 app = MultiPage()
@@ -15,11 +16,8 @@ st.title('Minado de datos ⛏️')
 
 # Add all your application here
 app.add_page("Carga de datos", upload_dataset.app)
-app.add_page("Análisis exploratorio de datos", exploratory_data_analysis.app)
-#app.add_page("Change Metadata", metadata.app)
-#app.add_page("Machine Learning", machine_learning.app)
-#app.add_page("Data Analysis",data_visualize.app)
-#app.add_page("Y-Parameter Optimization",redundant.app)
+app.add_page("EDA", exploratory_data_analysis.app)
+app.add_page("PCA", principal_component_analysis.app)
 
 # The main app
 app.run()
