@@ -29,7 +29,7 @@ def hasCategoricalData(data):
 def getPossibleClasses(data,numClasses):
   possibleCols = []
   for col in data.select_dtypes(include='object'):
-    if data[col].nunique() < numClasses:
+    if data[col].nunique() <= numClasses:
       possibleCols.append(col)
   return possibleCols
 
@@ -87,8 +87,9 @@ def app():
     col3, col4 = st.beta_columns(2)
     numClasses = col3.number_input(
       label='Selecciona el número de clases máximo',
-      value=10
+      value=10,step=1
     )
+    numClasses = int(numClasses)
 
     col4.write('Las posibles variables clase son')
     possibleCols = getPossibleClasses(data,numClasses)

@@ -85,8 +85,10 @@ def app():
       label='Selecciona el número de componentes principales',
       min_value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1,
       max_value=np.where(np.logical_and(variances>=75, variances<=90))[0][-1]+1,
-      value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1
+      value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1,
+      step=1
   )
+  numComponents = int(numComponents)
 
   # Step 5. Proportion of relevancies
   st.subheader('Proporción de relevancias')
@@ -101,7 +103,7 @@ def app():
   )
   components = pd.DataFrame(pca.components_, columns=numData.columns)
   # Create a heatmap with the absolute value of each component
-  fig2 = px.imshow(abs(components.head(int(numComponents))),
+  fig2 = px.imshow(abs(components.head(numComponents)),
     labels={'x':'variables', 'y':'componentes principales', 'color':'varianza'},
     color_continuous_scale='teal'
   )
