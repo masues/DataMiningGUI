@@ -45,8 +45,19 @@ def app():
   Se muestran las variables numéricas que no contienen datos nulos dentro del
   conjunto de datos cargado.
   """)
+
   # Select numeric variables with non empty values
   data = data.select_dtypes(exclude='object').dropna(axis='columns')
+  # Check if the result data is empty
+  if data.empty:
+    st.error(
+      """
+      Error. Todas las columnas numéricas del conjunto de datos leido poseen
+      datos nulos. Primero elimina registros nulos dentro del módulo de EDA
+      para poder continuar.
+      """
+    )
+    st.stop()
   st.write(data)
   st.markdown('El conjunto de datos contiene **'+str(data.shape[0])+
     '** registros y **'+str(data.shape[1])+'** columnas.')
@@ -102,24 +113,40 @@ def app():
   )
   st.write(centroids)
 
-  st.subheader('Gráfica de los grupos generados')
-  st.write('Para la generación de la gráfica de los grupos se utiliza PCA')
+  # In the rest of the code, the program tries to render plots in 2D and 3D
+  # using PCA
   scaler = StandardScaler()
   scaler.fit(data)
   dataStandarized = scaler.transform(data)
-  pca = PCA(n_components=3)
+  
+  # If the num of variables is bigger than 3, it uses PCA with n_compoments=3
+  # else it uses the same number of variables
+  nComponents = 3 if len(data.columns) >= 3 else \
+    len(data.columns)
+
+  if nComponents == 1:
+    st.stop() # Can't generete a plot with only one dimension
+
+  pca = PCA(n_components=nComponents)
   pca.fit(dataStandarized)
   dataReduced = pd.DataFrame(
     pca.transform(dataStandarized),
-    columns=['PCA%s' % _ for _ in range(3)]
+    columns=['PCA%s' % _ for _ in range(nComponents)]
   )
   dataReduced['Cluster'] = kMeansModel.labels_
+
+  st.subheader('Gráficas de los grupos generados')
+  st.write('Para la generación de las gráficas de los grupos se utiliza PCA')
+
+  # Graphics in 2D
   fig2 = px.scatter(dataReduced, x="PCA0", y="PCA1", color="Cluster",
     color_continuous_scale="jet",title="Agrupamiento en 2D"
   )
   st.plotly_chart(fig2, use_container_width=True)
 
-  fig3 = px.scatter_3d(dataReduced, x="PCA0", y="PCA1", z="PCA2",  color="Cluster",
-    color_continuous_scale="jet",title="Agrupamiento en 3D"
-  )
-  st.plotly_chart(fig3, use_container_width=True)
+  # Graphics in 3D
+  if nComponents >= 3:
+    fig3 = px.scatter_3d(dataReduced, x="PCA0", y="PCA1", z="PCA2",  color="Cluster",
+      color_continuous_scale="jet",title="Agrupamiento en 3D"
+    )
+    st.plotly_chart(fig3, use_container_width=True)

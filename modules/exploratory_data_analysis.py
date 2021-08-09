@@ -36,6 +36,9 @@ def getPossibleClasses(data,numClasses):
 def getMeanValues(data,classVar):
   return data.groupby(classVar).agg(['mean'])
 
+def getColumnsWithNulls(data):
+  return data.loc[:, data.isnull().any()].columns
+
 def app():
   st.header('Análisis exploratorio de datos 🔎')
 
@@ -97,7 +100,7 @@ def app():
     col4.write('Las posibles variables clase son')
     possibleCols = getPossibleClasses(data,numClasses)
     col4.write(possibleCols)
-    if possibleCols != None:
+    if possibleCols:
       st.write('Valores promedio con respecto a la variable clase')
       classVar = st.selectbox(label='Selecciona a la variable clase',
         options=possibleCols,key='varClass')
@@ -116,12 +119,21 @@ def app():
     """
   )
 
-  variables = st.multiselect(label='Multiselect',options=data.columns,
-    default=list(data.columns))
+  # Multiselect for select the variables
+  variables = st.multiselect(
+    label='Selecciona las columnas del conjunto de datos que se utilizarán',
+    options=data.columns, default=list(data.columns), key='variables'
+  )
+  varWithNulls = st.multiselect(
+    label='Selecciona las columnas que contienen registros nulos para eliminar',
+    options=getColumnsWithNulls(data[variables]), key='varWithNulls'
+  )
   if not variables:
     st.error("Por favor, selecciona al menos una variable.")
+    st.stop()
   else:
-    dataReduced = data[variables]
+    dataReduced = data.dropna(subset=varWithNulls) if varWithNulls else data
+    dataReduced = dataReduced[variables]
     st.write('El conjunto de datos reducido es')
     st.write(dataReduced)
     st.markdown('El conjunto de datos reducido contiene **'+

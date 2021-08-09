@@ -58,6 +58,15 @@ def app():
   # Define the independent variables based on the remaining numeric variables
   X = data.drop([classVar], axis='columns').select_dtypes(exclude='object').\
     dropna(axis='columns')
+  if X.empty:
+    st.error(
+      """
+      Error. Todas las columnas numéricas del conjunto de datos leido poseen
+      datos nulos. Primero elimina registros nulos dentro del módulo de EDA
+      para poder continuar.
+      """
+    )
+    st.stop()
   col2.write('Las variables independientes son')
   col2.write(list(X.columns))
   

@@ -9,6 +9,9 @@ import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
+def getColumnsWithNulls(data):
+  return data.loc[:, data.isnull().any()].columns
+
 def app():
   st.header('Análisis de componentes principales 📊')
   st.write("""
@@ -17,11 +20,13 @@ def app():
   """)
 
   # Check if the data has been uploaded previously
-  if 'data' not in st.session_state:
+  if 'dataReduced' in st.session_state:
+    data = st.session_state.dataReduced
+  elif 'data' in st.session_state:
+    data = st.session_state.data
+  else:
     st.warning('Primero carga un conjunto de datos.')
     st.stop()
-  else:
-    data = dataReduced = st.session_state.data
   
   # Print the data uploaded in upload_dataset module
   st.subheader('Datos')
@@ -32,10 +37,22 @@ def app():
   """)
   # Select numeric variables with non empty values
   numData = data.select_dtypes(exclude='object').dropna(axis='columns')
+
+  # Check if the dataframe is empty
+  if numData.empty:
+    st.error(
+      """
+      Error. Todas las columnas numéricas del conjunto de datos leido poseen
+      datos nulos. Primero elimina registros nulos dentro del módulo de EDA
+      para poder continuar.
+      """
+    )
+    st.stop()
+
   st.write(numData)
   st.markdown('El conjunto de datos contiene **'+str(numData.shape[0])+
     '** registros y **'+str(numData.shape[1])+'** columnas.')
-  
+
   # Step 1. Data standardization
   st.subheader('Estandarización de datos')
   scaler = StandardScaler()
@@ -80,13 +97,23 @@ def app():
     yaxis_title="Porcentaje de varianza acumulada"
   )
   st.plotly_chart(fig1, use_container_width=True)
-  #st.write(np.where(np.logical_and(variances>=75, variances<=90))[0][0])
+
+  # If the variance converges to fast, the algorithm can't be completed
+  if 1 not in np.logical_and(variances>=75, variances<=90):
+    st.warning(
+      """
+      La varianza converge demasiado rápido a 100%, por lo que no tiene caso
+      aplicar el algoritmo PCA para reducir variables.
+      """
+    )
+    st.stop()
+
   numComponents = st.number_input(
-      label='Selecciona el número de componentes principales',
-      min_value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1,
-      max_value=np.where(np.logical_and(variances>=75, variances<=90))[0][-1]+1,
-      value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1,
-      step=1
+    label='Selecciona el número de componentes principales',
+    min_value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1,
+    max_value=np.where(np.logical_and(variances>=75, variances<=90))[0][-1]+1,
+    value=np.where(np.logical_and(variances>=75, variances<=90))[0][0]+1,
+    step=1
   )
   numComponents = int(numComponents)
 
@@ -109,18 +136,16 @@ def app():
   )
   st.plotly_chart(fig2, use_container_width=True)
 
-  st.write(
-    """
-    A partir del análisis de reducción de dimensionalidad realizado.
-    ¿Cuáles variables serán seleccionadas?
-    """
-  )
-  
+  st.write('Selección de columnas')
+
   # Multiselect for select the variables
-  variables = st.multiselect(label='Multiselect',options=data.columns,
-    default=list(data.columns))
+  variables = st.multiselect(
+    label='Selecciona las columnas del conjunto de datos que se utilizarán',
+    options=data.columns, default=list(data.columns), key='variables'
+  )
   if not variables:
     st.error("Por favor, selecciona al menos una variable.")
+    st.stop()
   else:
     dataReduced = data[variables]
     st.write('El conjunto de datos reducido es')
