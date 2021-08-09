@@ -1,5 +1,5 @@
 """
-Moldule logistic regression classifier
+Moldule Logistic Regression Classifier Model
 """
 
 import streamlit as st
@@ -73,7 +73,12 @@ def app():
   if st.button('Entrenar mdoelo'):
     st.spinner()
     with st.spinner(text='Entrenando'):
+      # Train the model with training data
       classModel = LogisticRegression().fit(X_train,y_train)
+      # Save the model, dependent and independent variables for subsequent
+      # predictions
+      st.session_state.model = classModel
+      st.session_state.x_columns = X.columns
       st.success('Modelo entrenado')
   else:
     st.stop()
