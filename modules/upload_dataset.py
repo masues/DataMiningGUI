@@ -14,9 +14,6 @@ def app():
     type = ['csv', 'txt'])
   typ = col2.radio('Selecciona la extensión', ['csv', 'txt'])
 
-  # Default dataset for debbug
-  st.session_state.data = pd.read_csv('https://raw.githubusercontent.com/masues/MD_datasets/main/melb_data.csv')
-
   if st.button('Cargar'):
     try:
       if typ == 'csv':

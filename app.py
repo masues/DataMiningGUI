@@ -1,7 +1,4 @@
 import streamlit as st
-# https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-#import numpy as np
-
 
 # Custom imports
 from multipage import MultiPage
