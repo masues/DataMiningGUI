@@ -4,6 +4,7 @@ Module Exploratory Data Analysis
 import streamlit as st
 import plotly.express as px
 import numpy as np
+import pandas as pd
 
 @st.cache
 def getHistogram(data,dataColumn):
@@ -60,12 +61,18 @@ def app():
   col1.markdown('El conjunto de datos contiene **'+str(data.shape[0])+
     '** registros y **'+str(data.shape[1])+'** columnas.')
   col1.write('Los tipos de datos son:')
-  col1.text(data.dtypes)
+  dataTypes = pd.DataFrame(data.dtypes,columns=['Tipo de dato'])
+  dataTypes.reset_index(level=0,inplace=True)
+  dataTypes.rename(columns={'index':'Variable',0:'Tipo de dato'},inplace=True)
+  col1.dataframe(dataTypes)
 
   # Step 1. Empty data detection
   col2.subheader('Identificación de datos faltantes')
   col2.write('La cantidad de datos faltantes por variable es:')
-  col2.text(data.isnull().sum())
+  nullData = pd.DataFrame(data.isnull().sum())
+  nullData.reset_index(level=0,inplace=True)
+  nullData.rename(columns={'index':'Variable',0:'No. Nulos'},inplace=True)
+  col2.dataframe(nullData,height=362)
 
   # Step 3. Atypical data detection
   st.subheader('Detección de datos atípicos')
